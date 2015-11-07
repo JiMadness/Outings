@@ -4,19 +4,10 @@
         <address>Corniche</address>
         <area>Stanly</area>
         <doWeLikeIt>31%</doWeLikeIt>
-        <minCharge>20</minCharge>
+        <minCharge>55</minCharge>
         <name>Costa</name>
         <phoneNumber>N/A</phoneNumber>
         <placeRating>3-Stars</placeRating>
-    </place>
-    <place>
-        <address>Fou'ad Street Before Goethe Institut</address>
-        <area>Fou'ad Street</area>
-        <doWeLikeIt>70%</doWeLikeIt>
-        <minCharge>20</minCharge>
-        <name>Costa</name>
-        <phoneNumber>N/A</phoneNumber>
-        <placeRating>4-Stars</placeRating>
     </place>
     <place>
         <address>Montazah</address>
@@ -24,6 +15,15 @@
         <doWeLikeIt>44%</doWeLikeIt>
         <minCharge>10</minCharge>
         <name>Montazah Palace</name>
+        <phoneNumber>N/A</phoneNumber>
+        <placeRating>4-Stars</placeRating>
+    </place>
+    <place>
+        <address>Fou'ad Street</address>
+        <area>Fou'ad Street</area>
+        <doWeLikeIt>70%</doWeLikeIt>
+        <minCharge>20</minCharge>
+        <name>Costa</name>
         <phoneNumber>N/A</phoneNumber>
         <placeRating>4-Stars</placeRating>
     </place>

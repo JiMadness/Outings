@@ -64,6 +64,11 @@ public class DialogController {
             mainApp.editDialogStage.close();
         }
         mainApp.saveData();
+        try {
+            mainApp.sendFile();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML

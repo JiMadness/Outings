@@ -61,7 +61,7 @@ public class Controller {
 
     @FXML
     private void choosePressed() {
-        int availableValue=-2;
+        int availableValue;
         ArrayList<Place> availablePlaces = new ArrayList<>();
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Choose a Place");
@@ -78,9 +78,11 @@ public class Controller {
             availableValue = Integer.valueOf(result.get()) >= 0 ? Integer.valueOf(result.get()) : -1;
         }catch (Exception e){
             new Alert(Alert.AlertType.ERROR,"Invalid amount value").show();
+            return;
         }
             if (availableValue == -1) {
-            new Alert(Alert.AlertType.ERROR, "Invalid amount value.").show();
+                new Alert(Alert.AlertType.ERROR, "Invalid amount value.").show();
+                return;
         }
         for (Place place : mainApp.getPlaces()) {
             if (Integer.valueOf(place.getMinCharge()) <= availableValue) {
@@ -146,8 +148,33 @@ public class Controller {
                 mainApp.saveData();
             }
         }
+        try {
+            mainApp.sendFile();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-
+    @FXML
+    private void refreshPressed()throws Exception{
+        if(mainApp.receiveFile(Main.data,"data.xml"))
+            mainApp.loadData();
+    }
+    @FXML
+    private void adminPressed(){
+        TextInputDialog input = new TextInputDialog();
+        input.setTitle("Admin login");
+        input.setHeaderText("Please enter your Admin password.");
+        input.setContentText("Password: ");
+        Optional<String> password = input.showAndWait();
+        if(password.isPresent()) {
+            if (String.valueOf(password.hashCode()).equals(Main.adminPassword)) {
+                newButton.setDisable(false);
+                editButton.setDisable(false);
+                deleteButton.setDisable(false);
+                new Alert(Alert.AlertType.INFORMATION, "Logged in successfully.").show();
+            } else new Alert(Alert.AlertType.ERROR, "Incorrect admin password.").show();
+        }
+    }
     public static void getDialogInstance(DialogController dialog) {
         dialogInstance = dialog;
     }

@@ -11,32 +11,29 @@ import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import java.io.File;
-import java.io.IOException;
-
+import java.io.*;
 
 public class Main extends Application {
     private ObservableList<Place> places = FXCollections.observableArrayList();
+    public Stage primaryStage;
     public Stage newDialogStage = new Stage();
     public Stage editDialogStage = new Stage();
     public static final File data = new File("resources/databases/data.xml");
+    private static final File password = new File("resources/databases/admin.pwd");
+    public static String adminPassword;
+    private static FTPClient ftp = new FTPClient();
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         final Image icon = new Image("file:resources/images/icon.png");
-        if(data.exists())
-            this.loadData();
-        else
-            try {
-                //noinspection ResultOfMethodCallIgnored
-                data.createNewFile();
-            } catch (IOException e) {
-                new Alert(Alert.AlertType.ERROR,"Database file can't read,write.").showAndWait();
-                primaryStage.close();
-            }
+        this.primaryStage = primaryStage;
+        this.initializeData();
         Controller.setMainApp(this);
         DialogController.setMainApp(this);
         BorderPane root = FXMLLoader.load(getClass().getResource("sample.fxml"));
@@ -74,7 +71,7 @@ public class Main extends Application {
             places.addAll(wrapper.getPlaces());
         } catch (Exception e) {
             e.printStackTrace();
-            }
+        }
     }
 
     public void saveData() {
@@ -92,6 +89,66 @@ public class Main extends Application {
             alert.setHeaderText("Could not save data");
             alert.setContentText("Could not save data to file.");
             alert.showAndWait();
+        }
+    }
+
+    public boolean receiveFile(File localFile, String remoteFileName) throws Exception {
+        FileOutputStream stream = new FileOutputStream(localFile, false);
+        if (!ftp.isConnected()) {
+            new Alert(Alert.AlertType.ERROR, "Can't read database.\nServer busy, or no internet connection.").showAndWait();
+            return false;
+        }
+        try {
+            ftp.retrieveFile(remoteFileName, stream);
+        } catch (Exception e) {
+            new Alert(Alert.AlertType.ERROR, "Can't read database from server.").showAndWait();
+            return false;
+        }
+        return true;
+    }
+
+    public boolean sendFile() throws Exception {
+        FileInputStream stream = new FileInputStream(data);
+        if (!ftp.isConnected()) {
+            new Alert(Alert.AlertType.ERROR, "Can't write to database.\nServer busy, or no internet connection.").showAndWait();
+            return false;
+        }
+        try {
+            ftp.storeFile("data.xml", stream);
+        } catch (Exception e) {
+            new Alert(Alert.AlertType.ERROR, "Can't write database to server.").showAndWait();
+            return false;
+        }
+        return true;
+    }
+
+    public static void getPassword() throws Exception {
+        InputStream stream = new FileInputStream(password);
+        char[] buffer = new char[10];
+        for (int i = 0; stream.available() != 0; i++) {
+            buffer[i] = (char) stream.read();
+        }
+        adminPassword = new String(buffer);
+    }
+
+    public void initializeData() throws Exception {
+        try {
+            ftp.connect("f12-preview.awardspace.net");
+            ftp.login("1987916", "OutingsAdmin101");
+            ftp.enterLocalPassiveMode();
+            ftp.setFileType(FTP.BINARY_FILE_TYPE);
+            this.receiveFile(data, "data.xml");
+            this.receiveFile(password, "admin.pwd");
+        } catch (Exception e) {
+            new Alert(Alert.AlertType.ERROR, "Can't connect to server.\nPlease check your internet connection.").show();
+        }
+        Main.getPassword();
+        password.deleteOnExit();
+        if (data.exists())
+            this.loadData();
+        else {
+            new Alert(Alert.AlertType.ERROR, "Can't read database.\nPlease check your internet connection.").showAndWait();
+            primaryStage.close();
         }
     }
 }
